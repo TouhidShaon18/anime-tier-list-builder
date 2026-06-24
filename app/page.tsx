@@ -5,7 +5,7 @@ export default async function Home() {
   const anime = await getTopAnime(12);
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10">
+    <main className="mx-auto max-w-6xl px-4 py-10">
       <header className="mb-8 text-center">
         <h1 className="bg-gradient-to-r from-brand-300 to-brand-500 bg-clip-text text-3xl font-black text-transparent sm:text-4xl">
           Anime Tier List Builder

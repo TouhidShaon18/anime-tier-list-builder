@@ -285,49 +285,55 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      {/* Exported region: the four tiers */}
-      <div ref={boardRef} className="space-y-2 rounded-xl bg-[#0f0a17] p-2">
-        {TIERS.map((t) => (
-          <TierRow key={t.id} tier={t} items={board[t.id]} />
-        ))}
-      </div>
+      {/* Tier board (left) + anime pool (right), side by side on desktop */}
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        {/* Left column: the four tiers + actions */}
+        <div className="min-w-0 flex-1">
+          {/* Exported region */}
+          <div ref={boardRef} className="space-y-2 rounded-xl bg-[#0f0a17] p-2">
+            {TIERS.map((t) => (
+              <TierRow key={t.id} tier={t} items={board[t.id]} />
+            ))}
+          </div>
 
-      {/* Actions */}
-      <div className="mt-5 flex flex-wrap gap-3">
-        <button
-          onClick={handleDownload}
-          disabled={busy}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-brand-500 disabled:opacity-50"
-        >
-          {busy ? "Working…" : "⬇️ Download image"}
-        </button>
-        <button
-          onClick={handleShareImage}
-          disabled={busy}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500 disabled:opacity-50"
-        >
-          📤 Share image
-        </button>
-        <button
-          onClick={handleFacebook}
-          className="rounded-lg bg-[#1877f2] px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110"
-        >
-          Share to Facebook
-        </button>
-        <button
-          onClick={resetBoard}
-          className="ml-auto rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
-        >
-          Reset
-        </button>
-      </div>
+          {/* Actions */}
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              onClick={handleDownload}
+              disabled={busy}
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-brand-500 disabled:opacity-50"
+            >
+              {busy ? "Working…" : "⬇️ Download image"}
+            </button>
+            <button
+              onClick={handleShareImage}
+              disabled={busy}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500 disabled:opacity-50"
+            >
+              📤 Share image
+            </button>
+            <button
+              onClick={handleFacebook}
+              className="rounded-lg bg-[#1877f2] px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110"
+            >
+              Share to Facebook
+            </button>
+            <button
+              onClick={resetBoard}
+              className="ml-auto rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
 
-      {/* Unranked pool */}
-      <div className="mt-8">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-white/60">
-          Drag these into a tier
-        </h2>
-        <Pool items={board.pool} />
+        {/* Right column: unranked anime pool */}
+        <div className="w-full shrink-0 lg:sticky lg:top-6 lg:w-[230px]">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-white/60">
+            Drag these into a tier
+          </h2>
+          <Pool items={board.pool} />
+        </div>
       </div>
 
       <DragOverlay dropAnimation={null}>
