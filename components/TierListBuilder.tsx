@@ -16,6 +16,9 @@ import {
 import { toPng } from "html-to-image";
 import type { Anime } from "@/lib/anime";
 
+export const SITE_NAME = "Marshmallow Tech";
+export const SITE_URL = "https://marshmallow-tech.com";
+
 type ContainerId = "S" | "A" | "B" | "C" | "pool";
 
 const TIERS: { id: Exclude<ContainerId, "pool">; label: string; color: string }[] =
@@ -220,6 +223,12 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
     return res.blob();
   }
 
+  // Send visitors to the Marshmallow Tech site (new tab) after they
+  // download or share, so the tool drives traffic back to the site.
+  function openSite() {
+    window.open(SITE_URL, "_blank", "noopener,noreferrer");
+  }
+
   async function handleDownload() {
     try {
       setBusy(true);
@@ -231,6 +240,7 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
       a.download = "anime-tier-list.png";
       a.click();
       URL.revokeObjectURL(url);
+      openSite();
     } catch (err) {
       console.error(err);
       alert("Sorry, the image could not be generated. Please try again.");
@@ -254,11 +264,19 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
         await navigator.share({
           files: [file],
           title: "My Anime Tier List",
-          text: "Here is my anime tier list! Built with the Anime Tier List Builder.",
+          text: `Here is my anime tier list! Built with the ${SITE_NAME} Anime Tier List Builder — ${SITE_URL}`,
         });
+        openSite();
       } else {
         // Desktop fallback: download so the user can upload it manually.
-        await handleDownload();
+        const blob2 = blob;
+        const url = URL.createObjectURL(blob2);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "anime-tier-list.png";
+        a.click();
+        URL.revokeObjectURL(url);
+        openSite();
         alert(
           "Your browser can't share files directly. The image has been downloaded — upload it to your Facebook group post.",
         );
@@ -290,10 +308,22 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
         {/* Left column: the four tiers + actions */}
         <div className="min-w-0 flex-1">
           {/* Exported region */}
-          <div ref={boardRef} className="space-y-2 rounded-xl bg-[#0f0a17] p-2">
-            {TIERS.map((t) => (
-              <TierRow key={t.id} tier={t} items={board[t.id]} />
-            ))}
+          <div ref={boardRef} className="rounded-xl bg-[#0f0a17] p-2">
+            <div className="space-y-2">
+              {TIERS.map((t) => (
+                <TierRow key={t.id} tier={t} items={board[t.id]} />
+              ))}
+            </div>
+            {/* Branding watermark — appears in the downloaded/shared image */}
+            <div className="mt-2 flex items-center justify-center gap-1.5 py-1 text-xs font-semibold text-white/70">
+              <span aria-hidden>🍡</span>
+              <span>
+                {SITE_NAME} ·{" "}
+                <span className="text-brand-300">
+                  {SITE_URL.replace("https://", "")}
+                </span>
+              </span>
+            </div>
           </div>
 
           {/* Actions */}
