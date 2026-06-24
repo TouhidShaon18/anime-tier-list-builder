@@ -15,6 +15,7 @@ import {
 } from "@dnd-kit/core";
 import { toPng } from "html-to-image";
 import type { Anime } from "@/lib/anime";
+import Logo from "@/components/Logo";
 
 export const SITE_NAME = "Marshmallow Tech";
 export const SITE_URL = "https://marshmallow-tech.com";
@@ -46,7 +47,7 @@ function AnimeCardVisual({ anime }: { anime: Anime }) {
   const showImg = anime.image && !broken;
 
   return (
-    <div className="relative h-[120px] w-[84px] overflow-hidden rounded-md bg-brand-900 shadow-md ring-1 ring-white/10">
+    <div className="group relative h-[120px] w-[84px] overflow-hidden rounded-lg bg-brand-900 shadow-lg shadow-black/40 ring-1 ring-white/10 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:ring-brand-400/60">
       {showImg ? (
         // Plain <img> (same-origin proxy) so html-to-image can export it.
         // eslint-disable-next-line @next/next/no-img-element
@@ -58,11 +59,11 @@ function AnimeCardVisual({ anime }: { anime: Anime }) {
           onError={() => setBroken(true)}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-600 to-brand-900 text-xl font-bold text-white">
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-500 to-brand-900 text-xl font-bold text-white">
           {initialsOf(anime.title)}
         </div>
       )}
-      <div className="absolute inset-x-0 bottom-0 bg-black/60 px-1 py-0.5 text-center text-[9px] leading-tight text-white">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent px-1 pb-1 pt-3 text-center text-[9px] font-medium leading-tight text-white">
         <span className="line-clamp-2">{anime.title}</span>
       </div>
     </div>
@@ -101,22 +102,31 @@ function TierRow({
   const { setNodeRef, isOver } = useDroppable({ id: tier.id });
 
   return (
-    <div className="flex min-h-[132px] overflow-hidden rounded-lg ring-1 ring-white/10">
+    <div className="flex min-h-[132px] overflow-hidden rounded-xl ring-1 ring-white/10">
       <div
-        className="flex w-[64px] shrink-0 items-center justify-center text-2xl font-black text-black/80"
+        className="relative flex w-[68px] shrink-0 flex-col items-center justify-center font-black text-black/80"
         style={{ backgroundColor: tier.color }}
       >
-        {tier.label}
+        <span className="text-3xl leading-none drop-shadow-sm">{tier.label}</span>
+        {items.length > 0 && (
+          <span className="absolute bottom-1.5 rounded-full bg-black/25 px-1.5 text-[10px] font-bold text-black/70">
+            {items.length}
+          </span>
+        )}
       </div>
       <div
         ref={setNodeRef}
-        className={`flex flex-1 flex-wrap content-start gap-2 bg-black/40 p-2 transition-colors ${
-          isOver ? "bg-brand-700/40" : ""
+        className={`flex flex-1 flex-wrap content-start items-center gap-2 p-2 transition-colors ${
+          isOver ? "bg-brand-600/25 ring-1 ring-inset ring-brand-400/50" : "bg-black/40"
         }`}
       >
-        {items.map((a) => (
-          <DraggableCard key={a.id} anime={a} />
-        ))}
+        {items.length === 0 ? (
+          <span className="px-2 text-xs text-white/25">
+            {isOver ? "Release to drop" : "Drag anime here"}
+          </span>
+        ) : (
+          items.map((a) => <DraggableCard key={a.id} anime={a} />)
+        )}
       </div>
     </div>
   );
@@ -128,13 +138,15 @@ function Pool({ items }: { items: Anime[] }) {
   return (
     <div
       ref={setNodeRef}
-      className={`flex min-h-[140px] flex-wrap content-start gap-2 rounded-lg bg-black/30 p-3 ring-1 ring-white/10 transition-colors ${
-        isOver ? "bg-brand-700/30" : ""
+      className={`flex min-h-[140px] flex-wrap content-start justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-colors ${
+        isOver ? "border-brand-400/50 bg-brand-600/15" : ""
       }`}
     >
       {items.length === 0 ? (
-        <p className="m-auto text-sm text-white/40">
-          All anime ranked! Drag them back here to unrank.
+        <p className="m-auto px-2 text-center text-sm text-white/40">
+          All anime ranked! 🎉
+          <br />
+          Drag them back here to unrank.
         </p>
       ) : (
         items.map((a) => <DraggableCard key={a.id} anime={a} />)
@@ -308,17 +320,21 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
         {/* Left column: the four tiers + actions */}
         <div className="min-w-0 flex-1">
           {/* Exported region */}
-          <div ref={boardRef} className="rounded-xl bg-[#0f0a17] p-2">
-            <div className="space-y-2">
+          <div
+            ref={boardRef}
+            className="rounded-2xl bg-gradient-to-b from-[#140e20] to-[#0b0712] p-3 ring-1 ring-white/10"
+          >
+            <div className="space-y-2.5">
               {TIERS.map((t) => (
                 <TierRow key={t.id} tier={t} items={board[t.id]} />
               ))}
             </div>
             {/* Branding watermark — appears in the downloaded/shared image */}
-            <div className="mt-2 flex items-center justify-center gap-1.5 py-1 text-xs font-semibold text-white/70">
-              <span aria-hidden>🍡</span>
+            <div className="mt-3 flex items-center justify-center gap-2 border-t border-white/10 pt-2.5 text-xs font-semibold text-white/75">
+              <Logo idSuffix="mark" className="h-5 w-5" />
               <span>
-                {SITE_NAME} ·{" "}
+                {SITE_NAME}
+                <span className="mx-1.5 text-white/30">·</span>
                 <span className="text-brand-300">
                   {SITE_URL.replace("https://", "")}
                 </span>
@@ -327,42 +343,55 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
           </div>
 
           {/* Actions */}
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-2.5">
             <button
               onClick={handleDownload}
               disabled={busy}
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-brand-500 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/40 transition hover:from-brand-500 hover:to-indigo-500 active:scale-[0.98] disabled:opacity-50"
             >
-              {busy ? "Working…" : "⬇️ Download image"}
+              <span aria-hidden>⬇️</span>
+              {busy ? "Working…" : "Download image"}
             </button>
             <button
               onClick={handleShareImage}
               disabled={busy}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-50"
             >
-              📤 Share image
+              <span aria-hidden>📤</span>
+              Share image
             </button>
             <button
               onClick={handleFacebook}
-              className="rounded-lg bg-[#1877f2] px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1877f2] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#1877f2]/25 transition hover:brightness-110 active:scale-[0.98]"
             >
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
+                <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.89v2.25h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z" />
+              </svg>
               Share to Facebook
             </button>
             <button
               onClick={resetBoard}
-              className="ml-auto rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
+              className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold text-white/70 transition hover:border-white/30 hover:text-white active:scale-[0.98]"
             >
+              <span aria-hidden>↺</span>
               Reset
             </button>
           </div>
         </div>
 
         {/* Right column: unranked anime pool */}
-        <div className="w-full shrink-0 lg:sticky lg:top-6 lg:w-[230px]">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-white/60">
-            Drag these into a tier
-          </h2>
-          <Pool items={board.pool} />
+        <div className="w-full shrink-0 lg:sticky lg:top-6 lg:w-[244px]">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-white/60">
+              Drag into a tier
+            </h2>
+            <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-bold text-white/70">
+              {board.pool.length}
+            </span>
+          </div>
+          <div className="lg:max-h-[70vh] lg:overflow-y-auto lg:pr-1">
+            <Pool items={board.pool} />
+          </div>
         </div>
       </div>
 

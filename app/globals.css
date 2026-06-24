@@ -14,15 +14,21 @@
 }
 
 :root {
-  --background: #0f0a17;
+  --background: #0b0712;
   --foreground: #f5f0fb;
 }
 
 html,
 body {
-  background: var(--background);
+  min-height: 100%;
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
+  background-color: var(--background);
+  /* Soft brand glows behind the page */
+  background-image:
+    radial-gradient(60rem 40rem at 15% -10%, rgba(99, 91, 255, 0.18), transparent 60%),
+    radial-gradient(50rem 40rem at 100% 0%, rgba(168, 85, 247, 0.16), transparent 55%);
+  background-attachment: fixed;
 }
 
 /* Prevent the browser's native drag ghost / scroll fighting touch DnD */
