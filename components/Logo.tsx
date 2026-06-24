@@ -7,17 +7,21 @@
 export default function Logo({
   className,
   idSuffix = "a",
+  decorative = false,
 }: {
   className?: string;
   idSuffix?: string;
+  /** Set when adjacent text already names the brand, to avoid double announcement. */
+  decorative?: boolean;
 }) {
   const grad = `mt-grad-${idSuffix}`;
   return (
     <svg
       viewBox="0 0 120 120"
       className={className}
-      role="img"
-      aria-label="Marshmallow Tech"
+      role={decorative ? undefined : "img"}
+      aria-label={decorative ? undefined : "Marshmallow Tech"}
+      aria-hidden={decorative ? true : undefined}
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>

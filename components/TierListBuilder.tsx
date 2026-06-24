@@ -6,6 +6,7 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  KeyboardSensor,
   PointerSensor,
   TouchSensor,
   useDraggable,
@@ -53,7 +54,7 @@ function AnimeCardVisual({ anime }: { anime: Anime }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={anime.image}
-          alt={anime.title}
+          alt=""
           className="h-full w-full object-cover"
           draggable={false}
           onError={() => setBroken(true)}
@@ -81,7 +82,8 @@ function DraggableCard({ anime }: { anime: Anime }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`dnd-grabbable cursor-grab active:cursor-grabbing ${
+      aria-label={anime.title}
+      className={`dnd-grabbable cursor-grab rounded-lg active:cursor-grabbing ${
         isDragging ? "opacity-30" : ""
       }`}
     >
@@ -109,7 +111,7 @@ function TierRow({
       >
         <span className="text-3xl leading-none drop-shadow-sm">{tier.label}</span>
         {items.length > 0 && (
-          <span className="absolute bottom-1.5 rounded-full bg-black/25 px-1.5 text-[10px] font-bold text-black/70">
+          <span className="absolute bottom-1.5 rounded-full bg-white/85 px-1.5 text-[10px] font-bold text-black">
             {items.length}
           </span>
         )}
@@ -121,7 +123,7 @@ function TierRow({
         }`}
       >
         {items.length === 0 ? (
-          <span className="px-2 text-xs text-white/25">
+          <span className="px-2 text-xs text-white/50">
             {isOver ? "Release to drop" : "Drag anime here"}
           </span>
         ) : (
@@ -143,7 +145,7 @@ function Pool({ items }: { items: Anime[] }) {
       }`}
     >
       {items.length === 0 ? (
-        <p className="m-auto px-2 text-center text-sm text-white/40">
+        <p className="m-auto px-2 text-center text-sm text-white/55">
           All anime ranked! 🎉
           <br />
           Drag them back here to unrank.
@@ -177,6 +179,8 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
     useSensor(TouchSensor, {
       activationConstraint: { delay: 120, tolerance: 6 },
     }),
+    // Keyboard drag: Space/Enter to pick up, arrow keys to move, Space to drop
+    useSensor(KeyboardSensor),
   );
 
   const findContainer = useCallback(
@@ -331,7 +335,7 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
             </div>
             {/* Branding watermark — appears in the downloaded/shared image */}
             <div className="mt-3 flex items-center justify-center gap-2 border-t border-white/10 pt-2.5 text-xs font-semibold text-white/75">
-              <Logo idSuffix="mark" className="h-5 w-5" />
+              <Logo idSuffix="mark" decorative className="h-5 w-5" />
               <span>
                 {SITE_NAME}
                 <span className="mx-1.5 text-white/30">·</span>

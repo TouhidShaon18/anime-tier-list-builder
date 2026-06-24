@@ -15,7 +15,7 @@ export default async function Home() {
           rel="noopener noreferrer"
           className="group inline-flex items-center gap-2.5 rounded-full py-1 pl-1 pr-4 transition hover:bg-white/5"
         >
-          <Logo idSuffix="nav" className="h-9 w-9" />
+          <Logo idSuffix="nav" decorative className="h-9 w-9" />
           <span className="text-sm font-bold tracking-tight text-white/90 group-hover:text-white">
             {SITE_NAME}
           </span>
@@ -43,14 +43,14 @@ export default async function Home() {
 
       <TierListBuilder anime={anime} />
 
-      <footer className="mt-14 flex flex-col items-center gap-2 border-t border-white/10 pt-6 text-center text-xs text-white/40">
+      <footer className="mt-14 flex flex-col items-center gap-2 border-t border-white/10 pt-6 text-center text-xs text-white/55">
         <a
           href={SITE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 font-semibold text-white/70 transition hover:text-white"
         >
-          <Logo idSuffix="foot" className="h-5 w-5" />
+          <Logo idSuffix="foot" decorative className="h-5 w-5" />
           A free tool by {SITE_NAME}
         </a>
         <p>
