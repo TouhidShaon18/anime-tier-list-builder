@@ -319,8 +319,8 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      {/* Tier board (left) + anime pool (right), side by side on desktop */}
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+      {/* Tier board (left) + anime pool (right), side by side from tablet up */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
         {/* Left column: the four tiers + actions */}
         <div className="min-w-0 flex-1">
           {/* Exported region */}
@@ -384,7 +384,7 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
         </div>
 
         {/* Right column: unranked anime pool */}
-        <div className="w-full shrink-0 lg:sticky lg:top-6 lg:w-[244px]">
+        <div className="w-full shrink-0 md:sticky md:top-6 md:w-[230px]">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-white/60">
               Drag into a tier
@@ -393,7 +393,7 @@ export default function TierListBuilder({ anime }: { anime: Anime[] }) {
               {board.pool.length}
             </span>
           </div>
-          <div className="lg:max-h-[70vh] lg:overflow-y-auto lg:pr-1">
+          <div className="md:max-h-[70vh] md:overflow-y-auto md:pr-1">
             <Pool items={board.pool} />
           </div>
         </div>

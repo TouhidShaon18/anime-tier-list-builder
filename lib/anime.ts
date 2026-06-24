@@ -40,31 +40,77 @@ const FALLBACK: Anime[] = [
   image: "", // empty -> card renders an initials placeholder
 }));
 
+/** Anime that must always appear, by their stable MyAnimeList IDs. */
+const REQUIRED_IDS = [
+  21, // One Piece
+  813, // Dragon Ball Z
+  527, // Pokémon
+];
+
+function mapAnime(a: JikanAnime): Anime | null {
+  const title = a.title_english || a.title;
+  const raw = a.images?.jpg?.large_image_url || a.images?.jpg?.image_url;
+  if (!title || !raw) return null;
+  return { id: a.mal_id, title, image: proxied(raw) };
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Fetch a single anime by MAL id; retries once if Jikan rate-limits (429). */
+async function getAnimeById(id: number): Promise<Anime | null> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(`https://api.jikan.moe/v4/anime/${id}`, {
+        next: { revalidate: 86400 },
+      });
+      if (res.status === 429) {
+        await sleep(700);
+        continue;
+      }
+      if (!res.ok) return null;
+      const json = (await res.json()) as { data: JikanAnime };
+      return json.data ? mapAnime(json.data) : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 /**
- * Fetch the top anime from the free Jikan (MyAnimeList) API.
- * Cached for a day. Falls back to a built-in list on any error.
+ * Fetch the top anime from the free Jikan (MyAnimeList) API, then merge in the
+ * always-required titles (One Piece, Dragon Ball Z, Pokémon). Cached for a day.
+ * Falls back to a built-in list on any error.
  */
 export async function getTopAnime(limit = 24): Promise<Anime[]> {
   try {
-    const res = await fetch(
+    const topRes = await fetch(
       "https://api.jikan.moe/v4/top/anime?filter=bypopularity&limit=25&sfw",
       { next: { revalidate: 86400 } },
     );
-    if (!res.ok) throw new Error(`Jikan ${res.status}`);
+    if (!topRes.ok) throw new Error(`Jikan ${topRes.status}`);
+    const json = (await topRes.json()) as { data: JikanAnime[] };
 
-    const json = (await res.json()) as { data: JikanAnime[] };
-    const list = (json.data ?? [])
-      .map((a): Anime | null => {
-        const title = a.title_english || a.title;
-        const raw =
-          a.images?.jpg?.large_image_url || a.images?.jpg?.image_url;
-        if (!title || !raw) return null;
-        return { id: a.mal_id, title, image: proxied(raw) };
-      })
+    const top = (json.data ?? [])
+      .map(mapAnime)
       .filter((a): a is Anime => a !== null)
       .slice(0, limit);
 
-    return list.length ? list : FALLBACK;
+    // Fetch required titles one at a time to respect Jikan's rate limit.
+    const required: (Anime | null)[] = [];
+    for (const id of REQUIRED_IDS) {
+      required.push(await getAnimeById(id));
+      await sleep(400);
+    }
+
+    // Merge required titles in, de-duplicated by id.
+    const seen = new Set(top.map((a) => a.id));
+    const extras = required.filter(
+      (a): a is Anime => a !== null && !seen.has(a.id),
+    );
+
+    const merged = [...top, ...extras];
+    return merged.length ? merged : FALLBACK;
   } catch {
     return FALLBACK;
   }
